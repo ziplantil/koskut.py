@@ -50,6 +50,8 @@ def taivuta_nimisanaa(nimisana):
         (koskut.Sija.SEURANTO, koskut.Luku.MONIKKO),
     ]
 
+    print("C-Koskut: 0x{:04X}".format(nimisana.koskut()[1]))
+
     for sija, luku in MUODOT:
         if args.ikaalinen and luku == koskut.Luku.MONIKKO:
             continue
@@ -115,6 +117,7 @@ def taivuta_teonsanaa(teonsana):
     def laatutapa_johda(nimitapa):
         taivuta_nimisanaa(teonsana.johda_laatutapa(nimitapa))
 
+    print("C-Koskut: 0x{:04X}".format(teonsana.koskut()[1]))
 
     alukselliset_muodot(koskut.Aikamuoto.KESTÄMÄ, koskut.Tapaluokka.TOSITAPA)
     alukselliset_muodot(koskut.Aikamuoto.KERTOMA, koskut.Tapaluokka.TOSITAPA)

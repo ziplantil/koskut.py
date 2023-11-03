@@ -84,5 +84,6 @@ for sija, luku, vaihtoehdot in veikkain.vaihtoehdot():
 
 nimisana = veikkain.tulos()
 print("")
-print(nimisana.kotus())
+print("Taivutusluokka: {}".format(nimisana.kotus()))
+print("C-Koskut: 0x{:04X}".format(nimisana.koskut()[1]))
 taivuta_nimisanaa(nimisana, laji)

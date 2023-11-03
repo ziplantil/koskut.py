@@ -33,10 +33,10 @@ _KOTOPERÄISET = {
 _TAIVUTUSLUOKAT_LOPPUKIRJAIN = {
     "a": [12, 10, 9, 11, 13, 14, 15, 17, 18, 20, 21],
     "ä": [12, 10, 9, 11, 13, 14, 15, 17, 18, 20, 21],
-    "o": [2, 3, 4, 1, 18, 19, 20, 21],
-    "u": [2, 3, 4, 1, 18, 20, 21],
-    "ö": [2, 3, 4, 1, 18, 19, 20, 21],
-    "y": [2, 3, 4, 1, 18, 20, 21],
+    "o": [1, 2, 3, 4, 18, 19, 20, 21],
+    "u": [1, 2, 3, 4, 18, 20, 21],
+    "ö": [1, 2, 3, 4, 18, 19, 20, 21],
+    "y": [1, 2, 3, 4, 18, 20, 21],
     "e": [3, 8, 20, 21, 48],
     "i": [5, 6, 7, 23, 24, 25, 26, 27, 28, 29, 30, 31, 16, 21],
 
@@ -105,7 +105,7 @@ _TAIVUTUSLUOKAT_PÄÄTTEET = {
 
 # montako tavua sanassa pitää olla että se voi kuulua tähän luokkaan
 _TAIVUTUSLUOKAT_TAVUJA_VÄHINTÄÄN = {
-    3: 2, 4: 3, 11: 3, 12: 3, 13: 3, 14: 3, 15: 3, 17: 2,
+    2: 3, 3: 2, 4: 3, 11: 3, 12: 3, 13: 3, 14: 3, 15: 3, 17: 2,
     33: 2, 34: 2, 35: 2, 36: 2, 37: 2, 38: 2, 39: 2, 40: 3,
     41: 3, 45: 3, 46: 3, 47: 3
 }
@@ -158,6 +158,8 @@ _LOPPUVOKAALIT = [
     ("y", "ä"),
 ]
 
+_VIERAAT_VOKAALIT = {"é": "e", "å": "o"}
+
 
 def _tarkista_loppu(sana: str, pääte: str):
     if pääte.startswith(L):
@@ -203,7 +205,7 @@ def _mahdolliset_luokat(sana: str, laji: Nimilaji):
 
 
 def _loppukonsonantit(vartalo: str):
-    KONSONANTIT = "bcdfghjklmnpqrsštvwxyzž"
+    KONSONANTIT = "bcdfghjklmnpqrsštvwxzž"
     
     loppu = len(vartalo)
     alku = loppu
@@ -278,7 +280,6 @@ def _tunnista_asteet_heikosta(kons: str, perusmuoto: str):
     return asteet
 
 
-
 def _luokat_nimisanoiksi(sana: str, laji: Nimilaji, luokat: list[int], viimeinen_vokaali: str, vain_yksikkö: bool):
     # tekee taivutusluokista nimisanoja
     taivutukset = []
@@ -292,21 +293,28 @@ def _luokat_nimisanoiksi(sana: str, laji: Nimilaji, luokat: list[int], viimeinen
             aste = None
 
         if luokka in _LUOKKA_LOPPUVOKAALIT:
-            for vokaali, sointu in _LOPPUVOKAALIT:
+            lv0, lv1 = ([(v, s) for v, s in _LOPPUVOKAALIT if v == viimeinen_vokaali],
+                        [(v, s) for v, s in _LOPPUVOKAALIT if v != viimeinen_vokaali])
+            for vokaali, sointu in lv0:
+                taivutukset.append(Nimisana(
+                    sana=sana, luokka=luokka, aste=None, loppuvokaali=vokaali,
+                    sointu=sointu, vain_yksikkö=vain_yksikkö
+                ))
+            for vokaali, sointu in lv1:
                 taivutukset.append(Nimisana(
                     sana=sana, luokka=luokka, aste=None, loppuvokaali=vokaali,
                     sointu=sointu, vain_yksikkö=vain_yksikkö
                 ))
             continue
 
-        if viimeinen_vokaali in "ei":
-            try:
-                kokeet = [Nimisana(sana=sana, luokka=luokka, aste=None, sointu="a"), Nimisana(sana=sana, luokka=luokka, aste=None, sointu="ä")]
-            except ValueError:
-                continue
-        if viimeinen_vokaali in "aou":
+        if viimeinen_vokaali in "aouäöy":
             try:
                 kokeet = [Nimisana(sana=sana, luokka=luokka, aste=None, sointu=viimeinen_vokaali)]
+            except ValueError:
+                continue
+        else:
+            try:
+                kokeet = [Nimisana(sana=sana, luokka=luokka, aste=None, sointu="a"), Nimisana(sana=sana, luokka=luokka, aste=None, sointu="ä")]
             except ValueError:
                 continue
 
@@ -315,13 +323,13 @@ def _luokat_nimisanoiksi(sana: str, laji: Nimilaji, luokat: list[int], viimeinen
                 try:
                     taivutukset.append(Nimisana(sana=sana, luokka=luokka, aste=None, sointu=koe.sointu(), pakota_alisteiset_sijat_monikkoon=True))
                 except ValueError:
-                    continue
+                    pass
 
             if luokka in {24, 26} and laji in {Nimilaji.YLEISSANA, Nimilaji.PAIKANNIMI} and koe.sointu() == "ä":
                 try:
                     taivutukset.append(Nimisana(sana=sana, luokka=luokka, aste=None, sointu=koe.sointu(), meri=True))
                 except ValueError:
-                    continue
+                    pass
 
             if luokka in _LUOKKA_ASTE_VAHVA or luokka in _LUOKKA_ASTE_HEIKKO:
                 vartalo = koe._vartalo
@@ -339,22 +347,22 @@ def _luokat_nimisanoiksi(sana: str, laji: Nimilaji, luokat: list[int], viimeinen
                         try:
                             taivutukset.append(Nimisana(sana=sana, luokka=luokka, aste=aste, sointu=koe.sointu(), aika=True))
                         except ValueError:
-                            continue
+                            pass
 
                     try:
                         taivutukset.append(Nimisana(sana=sana, luokka=luokka, aste=aste, sointu=koe.sointu()))
                     except ValueError:
-                        continue
+                        pass
 
             taivutukset.append(koe)
 
     return taivutukset
 
 
-def _päättele_luokat(sana: str, laji: Nimilaji, viimeinen_vokaali: str, vain_yksikkö: bool):
+def _päättele_luokat(sana: str, taivutuspohja: str, laji: Nimilaji, viimeinen_vokaali: str, vain_yksikkö: bool):
     assert len(sana) 
     luokat = _mahdolliset_luokat(sana, laji)
-    return _luokat_nimisanoiksi(sana, laji, luokat, viimeinen_vokaali, vain_yksikkö=vain_yksikkö)
+    return _luokat_nimisanoiksi(taivutuspohja, laji, luokat, viimeinen_vokaali, vain_yksikkö=vain_yksikkö)
 
 
 class Taivutusveikkain():
@@ -368,18 +376,22 @@ class Taivutusveikkain():
         :returns: taivutusveikkain; ensin katso vaihtoehdot, valitse oikea, ja toista kunnes tulos on valmis
         """
         loppukirjain = sana[-1:]
-        if not loppukirjain or loppukirjain == loppukirjain.upper() or loppukirjain not in "abcdefghijklmnopqrsštuvwxyzžäö":
+        if not loppukirjain or loppukirjain == loppukirjain.upper() or loppukirjain not in ("abcdefghijklmnopqrsštuvwxyzžåö" + "".join(_VIERAAT_VOKAALIT.keys())):
             self._tulos = Nimisana.varataivutus(sana, vain_yksikkö=vain_yksikkö)
             return
 
-        sanan_vokaalit = [v for v in sana if v in VOKAALIT]
+        sana_vierasvokaalit = sana
+        for k, v in _VIERAAT_VOKAALIT.items():
+            if k in sana_vierasvokaalit:
+                sana_vierasvokaalit = sana_vierasvokaalit.replace(k, v)
+        sanan_vokaalit = [v for v in sana_vierasvokaalit if v in VOKAALIT]
         if not sanan_vokaalit:
             self._tulos = Nimisana.varataivutus(sana, vain_yksikkö=vain_yksikkö)
             return
 
         vain_yksikkö = vain_yksikkö or vain_yksikko
 
-        self._luokat = _päättele_luokat(sana, laji, sanan_vokaalit[-1], vain_yksikkö=vain_yksikkö)
+        self._luokat = _päättele_luokat(sana_vierasvokaalit, sana, laji, sanan_vokaalit[-1], vain_yksikkö=vain_yksikkö)
         if not self._luokat:
             self._tulos = Nimisana.varataivutus(sana, vain_yksikkö=vain_yksikkö)
             return

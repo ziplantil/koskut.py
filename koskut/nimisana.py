@@ -235,7 +235,7 @@ _LUOKAT = [
             yks=f"{L}",  yks_v=f"{L}",  yks_n=f"{L}",   yks_s=f"{L}",              yks_t=f"{L}{L}",
             mon=f"{L}i", mon_v=f"{L}i", mon_o=f"{L}je", mon_s=[f"{L}j", f"{L}it"], mon_t=f"{L}ihi")),
     (3, _Vartalosto(
-            yks=f"{L}",  yks_v=f"{L}",  yks_n=f"{L}",                  yks_s=f"{L}",   yks_t=f"{L}{L}",
+            yks=f"{L}",  yks_v=f"{L}",  yks_n=f"{L}",                  yks_s=f"{L}t",  yks_t=f"{L}{L}",
             mon=f"{L}i", mon_v=f"{L}i", mon_o=[f"{L}ide", f"{L}itte"], mon_s=f"{L}it", mon_t=f"{L}ihi")),
     (4, _Vartalosto(
             yks=f"{H}{HY}{L}",  yks_v=f"{V}{L}",  yks_n=f"{V}{L}",   yks_s=f"{V}{L}",  yks_t=f"{V}{L}{L}",
