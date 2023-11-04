@@ -716,8 +716,8 @@ class Nimisana():
                 if aste not in range(1, 14):
                     raise ValueError("ei voida esittää C-koskuen muodossa")
         elif (self._pakota_alisteiset_sijat_monikkoon
-                or self._vartalosto is _risti_ilman_i
-                or self._vartalosto is _paperi_ilman_i):
+                or self._päätteet is _risti_ilman_i
+                or self._päätteet is _paperi_ilman_i):
             aste = 31
         else:
             aste = 0
